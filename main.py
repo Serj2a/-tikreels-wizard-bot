@@ -13,8 +13,9 @@ TOKEN = "8888379212:AAGLWQjd_WUAiFGIT12P3nAwqdOe94nfjxA"
 ADMIN_ID = 906815308 # Твой ID
 
 # Реальные платежные ссылки WayForPay и DeStream
-WAYFORPAY_PREMIUM_URL = "https://wayforpay.com"
-WAYFORPAY_COFFEE_URL = "https://wayforpay.com"
+WAYFORPAY_PREMIUM_URL = "https://secure.wayforpay.com/sub/TikReels_Wizard_Premium"
+WAYFORPAY_COFFEE_URL = "https://secure.wayforpay.com/tips/coffee_wizard"
+
 DESTREAM_BASE_URL = "https://destream.net"
 CHANNEL_URL = "https://t.me"
 
