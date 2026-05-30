@@ -1,5 +1,6 @@
 aiogram==3.4.1
 fastapi
 uvicorn
-yt-dlp-nightly
+yt-dlp
+
 
