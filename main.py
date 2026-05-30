@@ -16,7 +16,8 @@ ADMIN_ID = 906815308 # Твой ID
 WAYFORPAY_PREMIUM_URL = "https://secure.wayforpay.com/sub/TikReels_Wizard_Premium"
 WAYFORPAY_COFFEE_URL = "https://secure.wayforpay.com/tips/coffee_wizard"
 
-DESTREAM_BASE_URL = "https://destream.net"
+DESTREAM_BASE_URL = "https://destream.net/live/finance/donate"
+
 CHANNEL_URL = "https://t.me"
 
 bot = Bot(token=TOKEN)
