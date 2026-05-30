@@ -502,7 +502,6 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
         "🇬🇧 Magic begins... Launching rocket for files 🚀🔥"
     )
 
-    # Идеальные настройки для серверов Linux на Render
     ydl_opts = {
         'quiet': True,
         'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
@@ -511,7 +510,6 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
         }
     }
 
-    # Скачиваем файл в корень сервера с четким фиксированным именем
     if mode == "video":
         ydl_opts['outtmpl'] = f"final_{user_id}.mp4"
     elif mode == "audio":
@@ -522,11 +520,9 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
 
     try:
         with YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)  # Принудительно качаем на диск сервера
-
-            # Проверка на фото-карусели TikTok
-            if info.get('entries') or info.get('type') == 'playlist' or 'requested_downloads' in info and info[
-                'requested_downloads'].get('ext') in ['jpg', 'png']:
+            info = ydl.extract_info(url, download=True)
+            if info.get('entries') or info.get('type') == 'playlist' or (
+                    'requested_downloads' in info and info['requested_downloads'].get('ext') in ['jpg', 'png']):
                 photos = [InputMediaPhoto(media=open(f, 'rb')) for f in os.listdir('.') if
                           f.startswith(f"media_{user_id}")]
                 if photos:
@@ -537,28 +533,81 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
                 reduce_attempt(user_id)
                 return
 
-        # Фирменная заплатна отправки для Telegram API на Linux
-        # Чиста і надежна отправка без прихованих символів
-    if mode == "video" and os.path.exists(f"final_{user_id}.mp4"):
-        from aiogram.types import FSInputFile
-        video_file = FSInputFile(f"final_{user_id}.mp4")
-        await message_obj.reply_video(video=video_file, caption="Your video is ready! / Видео готово!")
-    elif mode == "audio" and os.path.exists(f"final_{user_id}.mp3"):
-        from aiogram.types import FSInputFile
-        audio_file = FSInputFile(f"final_{user_id}.mp3")
-        await message_obj.reply_audio(audio=audio_file, caption="Your audio is ready! / Аудио готово!")
+        if mode == "video" and os.path.exists(f"final_{user_id}.mp4"):
+            from aiogram.types import FSInputFile
+            video_file = FSInputFile(f"final_{user_id}.mp4")
+            await message_obj.reply_video(video=video_file, caption="Your video is ready! / Видео готово!")
+        elif mode == "audio" and os.path.exists(f"final_{user_id}.mp3"):
+            from aiogram.types import FSInputFile
+            audio_file = FSInputFile(f"final_{user_id}.mp3")
+            await message_obj.reply_audio(audio=audio_file, caption="Your audio is ready! / Аудио готово!")
 
-    await status_msg.delete()
-    reduce_attempt(user_id)
-    await bot.send_message(chat_id=ADMIN_ID, text=f"📥 Успішно ({mode})!\nЮзер: {user_id}\nЛінк: {url}")
-
+        await status_msg.delete()
+        reduce_attempt(user_id)
+        await bot.send_message(chat_id=ADMIN_ID, text=f"📥 Успішно ({mode})!\nЮзер: {user_id}\nЛінк: {url}")
 
     except Exception as e:
         await status_msg.edit_text(
             "🇺🇦 Ой, магія дала збій... Перевір посилання або спробуй ще раз! ❌\n🇬🇧 Oops, magic failed... Check the link or try again! ❌")
         print(f"Помилка відправки: {e}")
     finally:
-        # Чистим за собой серверную память, чтобы тариф оставался бесплатным
         if os.path.exists(f"final_{user_id}.mp4"): os.remove(f"final_{user_id}.mp4")
         if os.path.exists(f"final_{user_id}.mp3"): os.remove(f"final_{user_id}.mp3")
         if user_id in user_urls: del user_urls[user_id]
+
+
+# ==================== АВТОМАТИЧНИЙ ПРИЙОМ ПЛАТЕЖІВ (WEBHOOKS) ====================
+@app.post("/webhook/wayforpay")
+async def wayforpay_webhook(request: Request):
+    try:
+        data = await request.json()
+        status = data.get("transactionStatus")
+        reason = data.get("reasonCode")
+        order_id = data.get("orderReference")
+        if status == "Approved" and reason == 1100:
+            if "Premium" in order_id:
+                user_id = int(order_id.split("_")[-1])
+                set_premium_days(user_id, 30)
+                await bot.send_message(chat_id=user_id,
+                                       text="🇺🇦 👑 **Дякуємо за оплату!** Автоматично активовано Premium на 30 днів без лімітів!\n🇬🇧 👑 **Thank you!** Premium activated for 30 days!")
+                await bot.send_message(chat_id=ADMIN_ID,
+                                       text=f"💳 Авто-оплата WayForPay! Юзер `{user_id}` отримав Premium на місяць.")
+        return Response(content='{"status":"accept"}', media_type="application/json")
+    except:
+        return Response(content='{"status":"error"}', media_type="application/json")
+
+
+@app.post("/webhook/destream")
+async def destream_webhook(request: Request):
+    try:
+        data = await request.json()
+        if data.get("status") == "success" or data.get("action") == "donate":
+            comment = data.get("comment", "")
+            if "premium_" in comment:
+                user_id = int(comment.replace("premium_", "").strip())
+                set_premium_days(user_id, 30)
+                await bot.send_message(chat_id=user_id,
+                                       text="🇺🇦 👑 **Дякуємо!** Міжнародний платіж успішний. Premium активовано на 30 днів!\n🇬🇧 👑 **Success!** Premium activated for 30 days!")
+                await bot.send_message(chat_id=ADMIN_ID,
+                                       text=f"💳 Авто-оплата DeStream! Іноземець `{user_id}` купив Premium за $2.")
+            elif "coffee_" in comment:
+                user_id = int(comment.replace("coffee_", "").strip())
+                await bot.send_message(chat_id=user_id,
+                                       text="🇺🇦 ☕️ **Дякуємо за чашечку кави!** Твоя підтримка робить нашого Чарівника кращим!\n🇬🇧 ☕️ **Thank you for the coffee!** Your support is amazing!")
+                await bot.send_message(chat_id=ADMIN_ID, text=f"☕️ Донат на каву від юзера `{user_id}` через DeStream!")
+        return {"status": "ok"}
+    except:
+        return {"status": "error"}
+
+
+@app.on_event("startup")
+async def on_startup():
+    init_db()
+    asyncio.create_task(dp.start_polling(bot))
+    print("Ультимативна автоматична грошова машина CodeOfFreedom запущена!")
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run(app, host="0.0.0.0", port=10000)
