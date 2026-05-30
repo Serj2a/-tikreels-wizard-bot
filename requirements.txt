@@ -2,5 +2,7 @@ aiogram==3.4.1
 fastapi
 uvicorn
 yt-dlp
+curl_cffi
+
 
 
