@@ -22,7 +22,8 @@ DESTREAM_BASE_URL = "https://destream.net/live/finance/donate"
 
 CHANNEL_URL = "https://t.me"
 
-bot = Bot(token=TOKEN)
+bot = Bot(token=BOT_TOKEN)
+
 dp = Dispatcher()
 app = FastAPI()  # Веб-сервер для автоматического приема денег
 
