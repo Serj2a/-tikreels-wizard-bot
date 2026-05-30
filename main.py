@@ -9,7 +9,7 @@ from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, C
 from yt_dlp import YoutubeDL
 
 # ==================== НАСТРОЙКИ ПРОЕКТА ====================
-TOKEN = "8888379212:AAGLWQjd_WUAiFGIT12P3nAwqdOe94nfjxA"
+TOKEN = "8888379212:AAExO9MuVGrVT5fwdpy3eQchanjo51V5zM8"
 ADMIN_ID = 906815308 # Твой ID
 
 # Реальные платежные ссылки WayForPay и DeStream
