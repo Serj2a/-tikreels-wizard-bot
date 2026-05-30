@@ -521,6 +521,11 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
     try:
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
+
+            # Умная защита от списков (Фикс ошибки 'list' object has no attributes 'get')
+            if isinstance(info, list):
+                info = info[0]
+
             if info.get('entries') or info.get('type') == 'playlist' or (
                     'requested_downloads' in info and info['requested_downloads'].get('ext') in ['jpg', 'png']):
                 photos = [InputMediaPhoto(media=open(f, 'rb')) for f in os.listdir('.') if
