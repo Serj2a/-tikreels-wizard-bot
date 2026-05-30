@@ -538,20 +538,20 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
                 return
 
         # Фирменная заплатна отправки для Telegram API на Linux
-        if mode == "video" and os.path.exists(f"final_{user_id}.mp4"):
-            from aiogram.types import FSInputFile
-            video_file = FSInputFile(f"final_{user_id}.mp4")
-            await message_obj.reply_video(video=video_file,
-                                          caption="🇺🇦 Твоє відео готове! ✨🎬\n🇬🇧 Your video is ready! ✨🎬")
-        elif mode == "audio" and os.path.exists(f"final_{user_id}.mp3"):
-            from aiogram.types import FSInputFile
-            audio_file = FSInputFile(f"final_{user_id}.mp3")
-            await message_obj.reply_audio(audio=audio_file,
-                                          caption="🇺🇦 Твій аудіотрек готовий! ✨🎵\n🇬🇧 Your audio track is ready! ✨🎵")
+        # Чиста і надежна отправка без прихованих символів
+    if mode == "video" and os.path.exists(f"final_{user_id}.mp4"):
+        from aiogram.types import FSInputFile
+        video_file = FSInputFile(f"final_{user_id}.mp4")
+        await message_obj.reply_video(video=video_file, caption="Your video is ready! / Видео готово!")
+    elif mode == "audio" and os.path.exists(f"final_{user_id}.mp3"):
+        from aiogram.types import FSInputFile
+        audio_file = FSInputFile(f"final_{user_id}.mp3")
+        await message_obj.reply_audio(audio=audio_file, caption="Your audio is ready! / Аудио готово!")
 
-        await status_msg.delete()
-        reduce_attempt(user_id)
-        await bot.send_message(chat_id=ADMIN_ID, text=f"📥 Успішно ({mode})!\nЮзер: {user_id}\nЛінк: {url}")
+    await status_msg.delete()
+    reduce_attempt(user_id)
+    await bot.send_message(chat_id=ADMIN_ID, text=f"📥 Успішно ({mode})!\nЮзер: {user_id}\nЛінк: {url}")
+
 
     except Exception as e:
         await status_msg.edit_text(
