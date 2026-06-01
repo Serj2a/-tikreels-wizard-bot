@@ -639,7 +639,7 @@ async def wayforpay_webhook(request: Request):
 @app.on_event("startup")
 async def on_startup():
     init_db()
-    await bot.set_webhook(url="https://onrender.com")
+    # await bot.set_webhook(url="https://wizard-bot-reborn.onrender.com")
 
     print("Ультимативна автоматична грошова машина CodeOfFreedom запущена на Render!")
 
