@@ -210,6 +210,7 @@ async def cmd_start(message: Message):
 @app.get("/")
 async def root():
     return {"status": "alive"}
+    if not dp.storage: asyncio.create_task(dp.start_polling(bot, skip_updates=True))
 
 
 @app.post("/")
