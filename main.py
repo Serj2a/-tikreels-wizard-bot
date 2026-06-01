@@ -9,7 +9,7 @@ from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, C
 from yt_dlp import YoutubeDL
 
 # ==================== НАСТРОЙКИ ПРОЕКТА ====================
-BOT_TOKEN = "8888379212:AAHosT9r0gSMC0Rs8FL0HjaP4PLuUX_cRQs"
+BOT_TOKEN = "8888379212:AAFomTfrNqvhYLR-FGgBa2bPDyU-ByvK2So"
 
 
 ADMIN_ID = 906815308 # Твой ID
@@ -552,8 +552,7 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
 
     ydl_opts = {
         'quiet': True,
-        'format': 'bestvideo+bestaudio/best',
-        'impersonate': 'chrome',
+        'format': 'best[ext=mp4]/best',
         'geo_bypass': True,
         'http_headers': {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
@@ -608,7 +607,7 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
 
         await status_msg.delete()
         reduce_attempt(user_id)
-       
+        await bot.send_message(chat_id=ADMIN_ID, text=f"📥 Успішно ({mode})!\nЮзер: {user_id}\nЛінк: {url}")
 
     except Exception as e:
         await status_msg.edit_text(
@@ -621,19 +620,6 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
 
 
 # ==================== АВТОМАТИЧЕСКИЙ ПРИЕМ ПЛАТЕЖЕЙ (FastAPI WEBHOOKS) ====================
-@app.post("/")
-async def telegram_webhook(request: Request):
-    try:
-        json_str = await request.json()
-        from aiogram.types import Update
-        update = Update.model_validate(json_str, context={"bot": bot})
-        await dp.feed_update(bot, update)
-        return Response(content='{"status":"ok"}', media_type="application/json")
-    except Exception as e:
-        print(f"Помилка вебхука ТГ: {e}")
-        return Response(content='{"status":"error"}', media_type="application/json")
-
-
 @app.post("/webhook/wayforpay")
 async def wayforpay_webhook(request: Request):
     try:
@@ -653,7 +639,8 @@ async def wayforpay_webhook(request: Request):
 @app.on_event("startup")
 async def on_startup():
     init_db()
-    asyncio.create_task(dp.start_polling(bot))
+    await bot.set_webhook(url="https://onrender.com")
+
     print("Ультимативна автоматична грошова машина CodeOfFreedom запущена на Render!")
 
 if __name__ == "__main__":
