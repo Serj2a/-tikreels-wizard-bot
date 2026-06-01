@@ -621,6 +621,19 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
 
 
 # ==================== АВТОМАТИЧЕСКИЙ ПРИЕМ ПЛАТЕЖЕЙ (FastAPI WEBHOOKS) ====================
+@app.post("/")
+async def telegram_webhook(request: Request):
+    try:
+        json_str = await request.json()
+        from aiogram.types import Update
+        update = Update.model_validate(json_str, context={"bot": bot})
+        await dp.feed_update(bot, update)
+        return Response(content='{"status":"ok"}', media_type="application/json")
+    except Exception as e:
+        print(f"Помилка вебхука ТГ: {e}")
+        return Response(content='{"status":"error"}', media_type="application/json")
+
+
 @app.post("/webhook/wayforpay")
 async def wayforpay_webhook(request: Request):
     try:
