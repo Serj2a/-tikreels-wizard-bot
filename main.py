@@ -552,7 +552,8 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
 
     ydl_opts = {
         'quiet': True,
-        'format': 'best[ext=mp4]/best',
+        'format': 'bestvideo+bestaudio/best',
+        'impersonate': 'chrome',
         'geo_bypass': True,
         'http_headers': {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
