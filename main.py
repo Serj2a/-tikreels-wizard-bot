@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request, Response
 from yt_dlp import YoutubeDL
 
 # ==================== НАЛАШТУВАННЯ СЕРВЕРА ТА БОТА ====================
-BOT_TOKEN = "8888379212:AAHosT9r0gSMC0Rs8FL0HjaP4PLuUX_cRQs"  # Твій новий чистий токен від BotFather
+BOT_TOKEN = "8888379212:AAGVdQsoXIeI9h5_2aXcjh18Kp0zrMqZTnc"  # Твій новий чистий токен від BotFather
 ADMIN_ID = 906815308  # Твій ID адміна
 DB_NAME = "database.db"
 
@@ -206,12 +206,10 @@ async def cmd_start(message: Message):
         pass
 
 
-# ==================== УЛЬТИМАТИВНА СЕРВЕРНА ПОДОШВА ДЛЯ RENDER ====================
+# ==================== ЧИСТІ СЕРВЕРНІ ВЕБХУКИ ДЛЯ RENDER ====================
 @app.get("/")
 async def root():
     return {"status": "alive"}
-    if not dp.storage: asyncio.create_task(dp.start_polling(bot, skip_updates=True))
-
 
 @app.post("/")
 async def telegram_webhook(request: Request):
@@ -225,15 +223,13 @@ async def telegram_webhook(request: Request):
         print(f"Помилка вебхука: {e}")
         return Response(content='{"status":"error"}', media_type="application/json")
 
-
 @app.on_event("startup")
 async def on_startup():
     init_db()
-    print("Машина CodeOfFreedom успішно запущена на Render через Вебхуки!")
-    asyncio.create_task(dp.start_polling(bot, skip_updates=True))
-
+    # Бот сам при кожному старті зв'яжеться з Телеграмом і закриє всі конфлікти!
+    await bot.set_webhook(url="https://onrender.com")
+    print("Ультимативна машина CodeOfFreedom успішно запущена на Render через Вебхуки!")
 
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=10000)
