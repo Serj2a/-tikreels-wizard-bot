@@ -207,31 +207,19 @@ async def cmd_start(message: Message):
 
 
 # ==================== ЧИСТІ СЕРВЕРНІ ВЕБХУКИ ДЛЯ RENDER ====================
+# ==================== УЛЬТИМАТИВНА СЕРВЕРНА ПОДОШВА ДЛЯ RENDER ====================
 @app.get("/")
 async def root():
     return {"status": "alive"}
 
-@app.post("/")
-@app.post("/webhook")
-async def telegram_webhook(request: Request):
-    try:
-        json_str = await request.json()
-        from aiogram.types import Update
-        update = Update.model_validate(json_str, context={"bot": bot})
-        await dp.feed_update(bot, update)
-        return Response(content='{"status":"ok"}', media_type="application/json")
-    except Exception as e:
-        print(f"Помилка вебхука ТГ: {e}")
-        return Response(content='{"status":"error"}', media_type="application/json")
-
-
 @app.on_event("startup")
 async def on_startup():
     init_db()
-    # Бот сам при кожному старті зв'яжеться з Телеграмом і закриє всі конфлікти!
-    await bot.set_webhook(url="https://onrender.com")
-    print("Ультимативна машина CodeOfFreedom успішно запущена на Render через Вебхуки!")
+    await bot.delete_webhook(drop_pending_updates=True)
+    asyncio.create_task(dp.start_polling(bot, skip_updates=True))
+    print("Ультимативная машина CodeOfFreedom успішно запущена на Render через вечний Polling!")
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=10000)
+
