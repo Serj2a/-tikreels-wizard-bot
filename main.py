@@ -142,24 +142,49 @@ def set_premium_days(user_id, days):
 def get_admin_stats():
     conn = sqlite3.connect(DB_NAME)
     cursor = conn.cursor()
+
+    # 1. Рахуємо унікальних користувачів
     cursor.execute("SELECT COUNT(*) FROM users")
     total_users = cursor.fetchone()[0]
+
+    # 2. Рахуємо загальну кількість завантажень
     cursor.execute("SELECT SUM(total_downloads) FROM users")
     total_downloads = cursor.fetchone()[0] or 0
+
+    # 3. Витягуємо статистику по країнах
     cursor.execute("SELECT lang_code, COUNT(*) FROM users GROUP BY lang_code ORDER BY COUNT(*) DESC")
     lang_rows = cursor.fetchall()
+
+    # 4. Витягуємо тільки чисті ID останніх 5 користувачів (Захист від помилки no such column)
+    cursor.execute("SELECT user_id FROM users ORDER BY user_id DESC LIMIT 5")
+
+    recent_users = cursor.fetchall()
+    recent_users_text = ""
+    for u in recent_users:
+        recent_users_text += f"• ID: {u[0]}\n"
+
+
+    # Закриваємо з'єднання з базою після всіх запитів
     conn.close()
 
+    # 5. Формуємо красиву статистику по країнах
+    lang_stats = ""
+    for row in lang_rows:
+        lang, count = row
+        lang_stats += f"• 🌍 Мова [{lang}]: {count} користувачів\n"
+
+    # 6. Збираємо фінальний текст аналітики
     stats_text = (
         "📊 **АНАЛІТИКА TikReels Wizard** 📊\n\n"
         f"👥 Всього унікальних користувачів: `{total_users}`\n"
         f"📥 Завантажень зроблено всього: `{total_downloads}`\n\n"
-        "🌍 **Статистика по країнах (мовах):**\n"
+        f"🌍 **Статистика по країнах (мовах):**\n{lang_stats}\n"
+        "👤 **ОСТАННІ ЮЗЕРИ (Клікни на ID для копіювання):**\n"
+        f"{recent_users_text}\n"
+        "⚙️ **КОМАНДИ АДМІНІСТРАТОРА:**\n"
+        "📢 Розсилка: ТЕКСТ — надіслати рекламу всем\n"
+        "👑 /give_premium ID ДНІ — видати Premium"
     )
-    for row in lang_rows:
-        lang, count = row
-        country_name = get_country_text(lang)  # Наш магічний словник прапорців!
-        stats_text += f"• {country_name}: {count} користувачів\n"
     return stats_text
 
 
@@ -171,8 +196,8 @@ async def cmd_admin(message: Message):
         admin_menu = (
             f"{stats}\n"
             "⚙️ **КОМАНДИ АДМІНІСТРАТОРА:**\n"
-            "📢 `Розсилка: ТЕКСТ` — надіслати рекламу всім\n"
-            "👑 `/give_premium ID ДНІ` — видати Premium"
+            "📢 Розсилка: ТЕКСТ — надіслати рекламу всім\n"
+            "👑 /give_premium ID ДНІ — видати Premium"
         )
         await message.answer(admin_menu, parse_mode="Markdown")
 
@@ -206,13 +231,19 @@ async def admin_give_premium(message: Message):
         await message.answer("❌ Помилка команди. Формат: `/give_premium ID ДНІ`")
 
 
-# Масова рекламна розсилка за 1 клік
-@dp.message(F.text.startswith("Розсилка:"))
+# Масова рекламна розсилка за 1 клік (Всеядна: Текст або Фото з банером)
+@dp.message(lambda msg: (msg.text and msg.text.startswith("Розсилка:")) or (
+        msg.caption and msg.caption.startswith("Розсилка:")))
 async def admin_broadcast(message: Message):
     if message.from_user.id != ADMIN_ID:
         return
-    broadcast_text = message.text.replace("Розсилка:", "").strip()
-    if not broadcast_text:
+
+    # Визначаємо, де лежить рекламний текст (у звичайному повідомленні чи під фото)
+    is_photo = bool(message.photo)
+    raw_text = message.caption if is_photo else message.text
+    broadcast_text = raw_text.replace("Розсилка:", "").strip()
+
+    if not broadcast_text and not is_photo:
         await message.answer("❌ Текст розсилки порожній!")
         return
 
@@ -223,11 +254,20 @@ async def admin_broadcast(message: Message):
     conn.close()
 
     success_count = 0
-    await message.answer("📢 Запускаю масову рекламну розсилку...")
+    await message.answer("📢 Запускаю масову рекламну розсилку (Текст + Банер)...")
+
+    # Якщо адмін надіслав фото, беремо найкращу якість (найвищий індекс)
+    photo_file_id = message.photo[-1].file_id if is_photo else None
 
     for user in users:
         try:
-            await bot.send_message(chat_id=user[0], text=broadcast_text)
+            if is_photo:
+                # Розсилаємо фото з красивим описом під ним
+                await bot.send_photo(chat_id=user[0], photo=photo_file_id, caption=broadcast_text)
+            else:
+                # Розсилаємо звичайний текст
+                await bot.send_message(chat_id=user[0], text=broadcast_text)
+
             success_count += 1
             await asyncio.sleep(0.05)  # Захист від блокувань Telegram API
         except:
@@ -306,8 +346,10 @@ async def cmd_start(message: Message):
             text=f"👤 Новий користувач запустив бота!\n"
                  f"Ім'я: {message.from_user.full_name}\n"
                  f"Юзернейм: @{message.from_user.username or 'немає'}\n"
-                 f"Країна (мова): `{country_name}`"
+                 f"ID: `{user_id}`\n"  
+                 f"Країна (мова): `{user_lang}`"  # ЗАМЕНИЛИ country_name НА user_lang!
         )
+
     except Exception as e:
         print(f"Помилка логування: {e}")
 
@@ -505,50 +547,63 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
         "🇬🇧 Magic begins... Launching rocket for files 🚀🔥"
     )
 
+    video_filename = f"final_{user_id}.mp4"
+    audio_filename = f"final_{user_id}.mp3"
+
     ydl_opts = {
         'quiet': True,
-        'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+        'format': 'best[ext=mp4]/best',
+        'geo_bypass': True,
         'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Language': 'uk-UA,uk;q=0.9,en-US;q=0.8,en;q=0.7',
         }
     }
 
     if mode == "video":
-        ydl_opts['outtmpl'] = f"final_{user_id}.mp4"
+        ydl_opts['outtmpl'] = video_filename
     elif mode == "audio":
-        ydl_opts['outtmpl'] = f"final_{user_id}.mp3"
+        ydl_opts['outtmpl'] = audio_filename
         ydl_opts['format'] = 'bestaudio/best'
     elif mode == "auto":
         ydl_opts['outtmpl'] = f"media_{user_id}_%(pickle_index)s.%(ext)s"
 
     try:
         with YoutubeDL(ydl_opts) as ydl:
+            # 1. Сначала движок СКАЧИВАЕТ видео и создает переменную info
             info = ydl.extract_info(url, download=True)
 
-            # Умная защита от списков (Фикс ошибки 'list' object has no attributes 'get')
-            if isinstance(info, list):
+            # 2. А вот здесь наш залізобетонный фикс с нулем [0], который уничтожает ошибку списков!
+            while isinstance(info, list) and len(info) > 0:
                 info = info[0]
 
-            if info.get('entries') or info.get('type') == 'playlist' or (
-                    'requested_downloads' in info and info['requested_downloads'].get('ext') in ['jpg', 'png']):
-                photos = [InputMediaPhoto(media=open(f, 'rb')) for f in os.listdir('.') if
-                          f.startswith(f"media_{user_id}")]
-                if photos:
-                    await message_obj.reply_media_group(media=photos)
-                    for f in os.listdir('.'):
-                        if f.startswith(f"media_{user_id}"): os.remove(f)
-                await status_msg.delete()
-                reduce_attempt(user_id)
-                return
+        # 3. Полная защита от любых списков на сервере
+        is_playlist = False
+        if info and getattr(info, 'get', lambda *a: None)('entries') or getattr(info, 'get', lambda *a: None)(
+                'type') == 'playlist':
+            is_playlist = True
 
-        if mode == "video" and os.path.exists(f"final_{user_id}.mp4"):
+        if is_playlist:
+            photos = [InputMediaPhoto(media=open(f, 'rb')) for f in os.listdir('.') if f.startswith(f"media_{user_id}")]
+            if photos:
+                await message_obj.reply_media_group(media=photos)
+                for f in os.listdir('.'):
+                    if f.startswith(f"media_{user_id}"):
+                        os.remove(f)
+            await status_msg.delete()
+            reduce_attempt(user_id)
+            return
+
+        # 4. Надежная локальная отправка готовых файлов напрямую в чат (Захист от message not found)
+        if mode == "video" and os.path.exists(video_filename):
             from aiogram.types import FSInputFile
-            video_file = FSInputFile(f"final_{user_id}.mp4")
-            await message_obj.reply_video(video=video_file, caption="Your video is ready! / Видео готово!")
-        elif mode == "audio" and os.path.exists(f"final_{user_id}.mp3"):
+            video_file = FSInputFile(video_filename)
+            await bot.send_video(chat_id=user_id, video=video_file, caption="Your video is ready! / Видео готово!")
+        elif mode == "audio" and os.path.exists(audio_filename):
             from aiogram.types import FSInputFile
-            audio_file = FSInputFile(f"final_{user_id}.mp3")
-            await message_obj.reply_audio(audio=audio_file, caption="Your audio is ready! / Аудио готово!")
+            audio_file = FSInputFile(audio_filename)
+            await bot.send_audio(chat_id=user_id, audio=audio_file, caption="Your audio is ready! / Аудио готово!")
 
         await status_msg.delete()
         reduce_attempt(user_id)
@@ -559,12 +614,12 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
             "🇺🇦 Ой, магія дала збій... Перевір посилання або спробуй ще раз! ❌\n🇬🇧 Oops, magic failed... Check the link or try again! ❌")
         print(f"Помилка відправки: {e}")
     finally:
-        if os.path.exists(f"final_{user_id}.mp4"): os.remove(f"final_{user_id}.mp4")
-        if os.path.exists(f"final_{user_id}.mp3"): os.remove(f"final_{user_id}.mp3")
+        if os.path.exists(video_filename): os.remove(video_filename)
+        if os.path.exists(audio_filename): os.remove(audio_filename)
         if user_id in user_urls: del user_urls[user_id]
 
 
-# ==================== АВТОМАТИЧНИЙ ПРИЙОМ ПЛАТЕЖІВ (WEBHOOKS) ====================
+# ==================== АВТОМАТИЧЕСКИЙ ПРИЕМ ПЛАТЕЖЕЙ (FastAPI WEBHOOKS) ====================
 @app.post("/webhook/wayforpay")
 async def wayforpay_webhook(request: Request):
     try:
@@ -576,46 +631,20 @@ async def wayforpay_webhook(request: Request):
             if "Premium" in order_id:
                 user_id = int(order_id.split("_")[-1])
                 set_premium_days(user_id, 30)
-                await bot.send_message(chat_id=user_id,
-                                       text="🇺🇦 👑 **Дякуємо за оплату!** Автоматично активовано Premium на 30 днів без лімітів!\n🇬🇧 👑 **Thank you!** Premium activated for 30 days!")
-                await bot.send_message(chat_id=ADMIN_ID,
-                                       text=f"💳 Авто-оплата WayForPay! Юзер `{user_id}` отримав Premium на місяць.")
+                await bot.send_message(chat_id=user_id, text="👑 **Premium успішно активовано на 30 днів!**")
         return Response(content='{"status":"accept"}', media_type="application/json")
     except:
         return Response(content='{"status":"error"}', media_type="application/json")
-
-
-@app.post("/webhook/destream")
-async def destream_webhook(request: Request):
-    try:
-        data = await request.json()
-        if data.get("status") == "success" or data.get("action") == "donate":
-            comment = data.get("comment", "")
-            if "premium_" in comment:
-                user_id = int(comment.replace("premium_", "").strip())
-                set_premium_days(user_id, 30)
-                await bot.send_message(chat_id=user_id,
-                                       text="🇺🇦 👑 **Дякуємо!** Міжнародний платіж успішний. Premium активовано на 30 днів!\n🇬🇧 👑 **Success!** Premium activated for 30 days!")
-                await bot.send_message(chat_id=ADMIN_ID,
-                                       text=f"💳 Авто-оплата DeStream! Іноземець `{user_id}` купив Premium за $2.")
-            elif "coffee_" in comment:
-                user_id = int(comment.replace("coffee_", "").strip())
-                await bot.send_message(chat_id=user_id,
-                                       text="🇺🇦 ☕️ **Дякуємо за чашечку кави!** Твоя підтримка робить нашого Чарівника кращим!\n🇬🇧 ☕️ **Thank you for the coffee!** Your support is amazing!")
-                await bot.send_message(chat_id=ADMIN_ID, text=f"☕️ Донат на каву від юзера `{user_id}` через DeStream!")
-        return {"status": "ok"}
-    except:
-        return {"status": "error"}
-
 
 @app.on_event("startup")
 async def on_startup():
     init_db()
     asyncio.create_task(dp.start_polling(bot))
-    print("Ультимативна автоматична грошова машина CodeOfFreedom запущена!")
-
+    print("Ультимативна автоматична грошова машина CodeOfFreedom запущена на Render!")
 
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=10000)
+
+
+
