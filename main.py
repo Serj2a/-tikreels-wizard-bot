@@ -229,6 +229,7 @@ async def telegram_webhook(request: Request):
 async def on_startup():
     init_db()
     print("Машина CodeOfFreedom успішно запущена на Render через Вебхуки!")
+    asyncio.create_task(dp.start_polling(bot, skip_updates=True))
 
 
 if __name__ == "__main__":
