@@ -608,7 +608,7 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
 
         await status_msg.delete()
         reduce_attempt(user_id)
-        await bot.send_message(chat_id=ADMIN_ID, text=f"📥 Успішно ({mode})!\nЮзер: {user_id}\nЛінк: {url}")
+       
 
     except Exception as e:
         await status_msg.edit_text(
