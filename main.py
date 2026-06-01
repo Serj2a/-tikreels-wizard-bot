@@ -8,7 +8,7 @@ from fastapi import FastAPI, Request, Response
 from yt_dlp import YoutubeDL
 
 # ==================== НАЛАШТУВАННЯ СЕРВЕРА ТА БОТА ====================
-BOT_TOKEN = "8888379212:AAGVdQsoXIeI9h5_2aXcjh18Kp0zrMqZTnc"  # Твій новий чистий токен від BotFather
+BOT_TOKEN = "8888379212:AAHosT9r0gSMC0Rs8FL0HjaP4PLuUX_cRQs"  # Твій новий чистий токен від BotFather
 ADMIN_ID = 906815308  # Твій ID адміна
 DB_NAME = "database.db"
 
