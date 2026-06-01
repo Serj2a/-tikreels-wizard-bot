@@ -661,11 +661,17 @@ async def root():
 @app.on_event("startup")
 async def on_startup():
     init_db()
-    # Удаляем любые старые зависшие вебхуки на серверах Telegram, чтобы освободить линию!
-    await bot.delete_webhook(drop_pending_updates=True)
-    # Запускаем вечный фоновый процесс опроса, который Render никогда не сможет выключить!
-    asyncio.create_task(dp.start_polling(bot, skip_updates=True))
+    # Создаем фоновую задачу с правильным контекстом сессии бота!
+    async def run_bot():
+        try:
+            await bot.delete_webhook(drop_pending_updates=True)
+            await dp.start_polling(bot, skip_updates=True)
+        finally:
+            await bot.session.close()
+            
+    asyncio.create_task(run_bot())
     print("Ультимативная машина CodeOfFreedom успешно запущена на Render через вечный Polling!")
+
 
 if __name__ == "__main__":
     import uvicorn
