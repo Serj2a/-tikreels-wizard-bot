@@ -212,6 +212,7 @@ async def root():
     return {"status": "alive"}
 
 @app.post("/")
+@app.post("/webhook")
 async def telegram_webhook(request: Request):
     try:
         json_str = await request.json()
@@ -220,8 +221,9 @@ async def telegram_webhook(request: Request):
         await dp.feed_update(bot, update)
         return Response(content='{"status":"ok"}', media_type="application/json")
     except Exception as e:
-        print(f"Помилка вебхука: {e}")
+        print(f"Помилка вебхука ТГ: {e}")
         return Response(content='{"status":"error"}', media_type="application/json")
+
 
 @app.on_event("startup")
 async def on_startup():
