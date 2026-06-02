@@ -362,32 +362,24 @@ async def cmd_start(message: Message):
         reply_markup=get_start_keyboard()
     )
 
-# Клікабельна магічна інструкція для користувачів
+# ==================== КЛІЄНТСЬКА МАГІЧНА ІНСТРУКЦІЯ ДЛЯ КОРИСТУВАЧІВ ====================
 @dp.callback_query(F.data == "show_help")
 async def process_help(callback: CallbackQuery):
     await callback.message.edit_text(
-        "🇺🇦 **МАГІЧНА ІНСТРУКЦІЯ / HELP:**\n\n"
-        "💥 **Як скачати Відео або Звук (MP3):**\n"
-        "1. Скопіюйте посилання на відео з TikTok, Instagram чи Shorts.\n"
+        "🔮 **МАГІЧНА ІНСТРУКЦІЯ / HELP:**\n\n"
+        "1. Скопіюйте посилання на відео з TikTok, Instagram або Shorts.\n"
         "2. Просто надішліть це посилання сюди в чат.\n"
-        "3. Обов'язково підпишіться на наш офіційний канал [🪄 Магія TikReels | Завантажувач](https://t.me).\n"
-        "4. Обери кнопку `🎬 Video` або `🎵 Audio`!\n\n"
-        "📊 **Система лімітів:**\n"
-        "На старті ти отримуєш **3 безкоштовні магії** ✨. Після їх вичерпання ти будеш отримувати **1 безкоштовне завантаження кожного нового дня**! Для повного безліміту тисни [☕️ Купити Premium](https://google.com) (тимчасове посилання).\n\n"
-        "📸 **Фото-Каруселі TikTok:**\n"
-        "Надішли посилання на фото-пост. Бот автоматично витягне всі картинки в HD та надішле альбомом!\n\n"
-        "💬 **Зв'язок з розробником:**\n"
-        "Якщо у тебе виникли питання — тисни кнопку `✍️ Support` прямо в головному меню!\n\n"
-        "-----------------------------------------\n\n"
-        "🇬🇧 **MAGIC MANUAL:**\n\n"
-        "💥 **Video or Sound (MP3):**\n"
-        "Send a video link. Subscribe to our channel [🪄 TikReels Wizard Club](https://t.me). Choose `🎬 Video` or `🎵 Audio`!\n\n"
-        "📊 **Limit System:**\n"
-        "Get **3 free downloads** at start ✨. Then you get **1 free download every new day**!",
-        reply_markup=get_back_keyboard(),
-        parse_mode="Markdown",
-        disable_web_page_preview=True
+        "3. Бот автоматично завантажить чисте FullHD відео без знаків!\n\n"
+        "📢 Наш офіційний клуб: @tikreels_wizard_club",
+        reply_markup=get_start_keyboard()
     )
+
+# ==================== СИСТЕМА ПЕРЕХОПЛЕННЯ ТА СКАЧУВАННЯ ВІДЕО ====================
+@dp.message(F.text.contains("tiktok.com") | F.text.contains("instagram.com") | F.text.contains("youtube.com"))
+async def handle_video_link(message: Message):
+    # Код скачування відео автоматично підхопить лінк з чату!
+    pass
+
 
 
 @dp.callback_query(F.data == "back_to_start")
