@@ -9,11 +9,8 @@ from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, C
 from yt_dlp import YoutubeDL
 
 # ==================== НАСТРОЙКИ ПРОЕКТА ====================
-BOT_TOKEN = "8888379212:AAE2GnSTzbNlZ14B6d0Wd-ed5IzXwW0Xp28"
-
-
-
-ADMIN_ID = 906815308 # Твой ID
+BOT_TOKEN = "ТВОЙ_РЕАЛЬНЫЙ_НОВЫЙ_ТОКЕН_ОТ_BOTFATHER"
+ADMIN_ID = 906815308 # Твой реальный ID
 
 # Реальные платежные ссылки WayForPay и DeStream
 WAYFORPAY_PREMIUM_URL = "https://secure.wayforpay.com/sub/TikReels_Wizard_Premium"
@@ -21,29 +18,11 @@ WAYFORPAY_COFFEE_URL = "https://secure.wayforpay.com/tips/coffee_wizard"
 
 DESTREAM_BASE_URL = "https://destream.net/live/finance/donate"
 
-import os
-import asyncio
-import sqlite3
-import json
-from datetime import datetime, timedelta
-from fastapi import FastAPI, Request, Response
-from aiogram import Bot, Dispatcher, F
-from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto
-from yt_dlp import YoutubeDL
-
-# ==================== НАСТРОЙКИ ПРОЕКТА ====================
-BOT_TOKEN = "8888379212:AAFomTfrNqvhYLR-FGgBa2bPDyU-ByvK2So"
+# СРАЗУ ПОСЛЕ ЭТОГО ДОЛЖЕН ИДТИ СЛЕДУЮЩИЙ КОД (НАПРИМЕР, СОЗДАНИЕ БОТА ИЛИ БАЗЫ ДАННЫХ),
+# НО НИКАКИХ ПОВТОРНЫХ "import os" ИЛИ "import asyncio" БЫТЬ НЕ ДОЛЖНО!
 
 
-ADMIN_ID = 906815308 # Твой ID
-
-# Реальные платежные ссылки WayForPay и DeStream
-WAYFORPAY_PREMIUM_URL = "https://secure.wayforpay.com/sub/TikReels_Wizard_Premium"
-WAYFORPAY_COFFEE_URL = "https://secure.wayforpay.com/tips/coffee_wizard"
-
-DESTREAM_BASE_URL = "https://destream.net/live/finance/donate"
-
-CHANNEL_URL = "https://t.me"
+"CHANNEL_URL = "https://t.me/tikreels_wizard_club"
 
 bot = Bot(token=BOT_TOKEN)
 
@@ -653,36 +632,24 @@ async def main():
 
 # ==================== УЛЬТИМАТИВНА СЕРВЕРНА ПОДОШВА ДЛЯ RENDER ====================
 from fastapi import FastAPI, Request, Response
-from contextlib import asynccontextmanager
+app = FastAPI()
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    init_db()
-    async def run_bot():
-        try:
-            # Даємо серверу Render 5 секунд повністю вийти в інтернет:
-            await asyncio.sleep(5)
-            await bot.delete_webhook(drop_pending_updates=True)
-            await dp.start_polling(bot, skip_updates=True)
-        finally:
-            await bot.session.close()
-    asyncio.create_task(run_bot())
-    print("Ультимативная машина CodeOfFreedom успешно запущена на Render!")
-    yield
-
-
-app = FastAPI(lifespan=lifespan)
-
-@app.route("/", methods=["GET", "HEAD"])
 @app.get("/")
-async def root(request: Request):
+async def root():
     return {"status": "alive"}
 
+@app.on_event("startup")
+async def on_startup():
+    init_db()
+    # Удаляем любые старые зависшие вебхуки на серверах Telegram, чтобы освободить линию!
+    await bot.delete_webhook(drop_pending_updates=True)
+    # Запускаем вечный фоновый процесс опроса, который Render никогда не сможет выключить!
+    asyncio.create_task(dp.start_polling(bot, skip_updates=True))
+    print("Ультимативная машина CodeOfFreedom успешно запущена на Render через вечный Polling!")
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=10000)
-
 
 
 
