@@ -354,22 +354,13 @@ async def cmd_start(message: Message):
         print(f"Помилка надсилання адміну: {e}")
 
          
-
-
-
-    # Рядок 364 (має 4 або 8 пробілів зліва):
+        # Рядок 358 (має рівно 4 пробіли зліва, чітко під лінієчку!):
     await message.answer(
-        # Усі внутрішні рядки тексту мають стояти СТРОГО на одній вертикальній лінії:
         "🧙‍♂️ **Привіт! Я твій ультимативний магічний завантажувач!**\n\n"
-        "Send me a ⚡️ **TikTok**, 🔮 **Instagram** or 🔥 **YouTube Shorts** link, and I will download it without watermarks!\n\n"
-        "📢 Наш офіційний клуб: @tikreels_wizard_club"
-    )
-
-
-        "Send me a ⚡️ **TikTok**, 🔮 **Instagram** or 🔥 **YouTube Shorts** link, and I will download it without watermarks!",
+        "Надішліть мені посилання на відео з **TikTok**, **Instagram Reels** або **YouTube Shorts**, і я завантажу його в FullHD якості без водяних знаків!\n\n"
+        "📢 Наш офіційний клуб: @tikreels_wizard_club",
         reply_markup=get_start_keyboard()
     )
-
 
 # Клікабельна магічна інструкція для користувачів
 @dp.callback_query(F.data == "show_help")
