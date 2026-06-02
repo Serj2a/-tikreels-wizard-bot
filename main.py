@@ -357,7 +357,7 @@ async def cmd_start(message: Message):
 
 
 
-    await message.answer(
+await message.answer(
         "🧙‍♂️ **Привіт! Я твій ультимативний магічний завантажувач!**\n\n"
         "📥 Надішліть мені посилання на відео з **TikTok**, **Instagram Reels** або **YouTube Shorts**, і я завантажу його в FullHD якості без водяних знаків!\n\n"
         "📢 Наш офіційний клуб: @tikreels_wizard_club"
