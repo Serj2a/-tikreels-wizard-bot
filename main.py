@@ -671,10 +671,10 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 @app.route("/", methods=["GET", "HEAD"])
-
 @app.get("/")
 async def root():
     return {"status": "alive"}
+
 
 if __name__ == "__main__":
     import uvicorn
