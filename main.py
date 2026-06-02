@@ -653,25 +653,30 @@ async def main():
 
 # ==================== УЛЬТИМАТИВНА СЕРВЕРНА ПОДОШВА ДЛЯ RENDER ====================
 from fastapi import FastAPI, Request, Response
-app = FastAPI()
+from contextlib import asynccontextmanager
 
-@app.get("/")
-async def root():
-    return {"status": "alive"}
-
-@app.on_event("startup")
-async def on_startup():
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     init_db()
-    # Создаем фоновую задачу с правильным контекстом сессии бота!
     async def run_bot():
         try:
             await bot.delete_webhook(drop_pending_updates=True)
             await dp.start_polling(bot, skip_updates=True)
         finally:
             await bot.session.close()
-            
     asyncio.create_task(run_bot())
     print("Ультимативная машина CodeOfFreedom успешно запущена на Render через вечный Polling!")
+    yield
+
+app = FastAPI(lifespan=lifespan)
+
+@app.get("/")
+async def root():
+    return {"status": "alive"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=10000)
 
 
 
