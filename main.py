@@ -9,7 +9,7 @@ from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, C
 from yt_dlp import YoutubeDL
 
 # ==================== НАСТРОЙКИ ПРОЕКТА ====================
-BOT_TOKEN = "ТВОЙ_РЕАЛЬНЫЙ_НОВЫЙ_ТОКЕН_ОТ_BOTFATHER"
+BOT_TOKEN = "8888379212:AAE2GnSTzbNlZ14B6d0Wd-ed5IzXwW0Xp28"
 ADMIN_ID = 906815308 # Твой реальный ID
 
 # Реальные платежные ссылки WayForPay и DeStream
