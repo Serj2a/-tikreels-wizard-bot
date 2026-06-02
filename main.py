@@ -672,7 +672,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.route("/", methods=["GET", "HEAD"])
 @app.get("/")
-async def root():
+async def root(request: Request):
     return {"status": "alive"}
 
 
