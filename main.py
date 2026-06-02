@@ -341,8 +341,7 @@ async def cmd_start(message: Message):
     user_lang = message.from_user.language_code or "en"
     get_or_create_user(message.from_user.id, lang_code=user_lang)
     country_name = get_country_text(user_lang)
-
-        try:
+    try:
         user_id = message.from_user.id
         user_lang = message.from_user.language_code or "en"
         country_text = get_country_text(user_lang)
@@ -353,6 +352,9 @@ async def cmd_start(message: Message):
         )
     except Exception as e:
         print(f"Помилка надсилання адміну: {e}")
+
+         
+
 
 
     await message.answer(
