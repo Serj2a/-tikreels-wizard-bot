@@ -357,11 +357,14 @@ async def cmd_start(message: Message):
 
 
 
-await message.answer(
+    # Рядок 364 (має 4 або 8 пробілів зліва):
+    await message.answer(
+        # Усі внутрішні рядки тексту мають стояти СТРОГО на одній вертикальній лінії:
         "🧙‍♂️ **Привіт! Я твій ультимативний магічний завантажувач!**\n\n"
-        "📥 Надішліть мені посилання на відео з **TikTok**, **Instagram Reels** або **YouTube Shorts**, і я завантажу його в FullHD якості без водяних знаків!\n\n"
+        "Send me a ⚡️ **TikTok**, 🔮 **Instagram** or 🔥 **YouTube Shorts** link, and I will download it without watermarks!\n\n"
         "📢 Наш офіційний клуб: @tikreels_wizard_club"
     )
+
 
         "Send me a ⚡️ **TikTok**, 🔮 **Instagram** or 🔥 **YouTube Shorts** link, and I will download it without watermarks!",
         reply_markup=get_start_keyboard()
