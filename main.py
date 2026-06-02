@@ -377,8 +377,12 @@ async def process_help(callback: CallbackQuery):
 # ==================== СИСТЕМА ПЕРЕХОПЛЕННЯ ТА СКАЧУВАННЯ ВІДЕО ====================
 @dp.message(F.text.contains("tiktok.com") | F.text.contains("instagram.com") | F.text.contains("youtube.com"))
 async def handle_video_link(message: Message):
-    # Код скачування відео автоматично підхопить лінк з чату!
-    pass
+    url = message.text.strip()
+    user_id = message.from_user.id
+    
+    # Запускаем твой родной, встроенный асинхронный движок скачивания!
+    asyncio.create_task(download_and_send_video(message, url, user_id))
+
 
 
 
