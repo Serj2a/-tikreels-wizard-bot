@@ -9,7 +9,7 @@ from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, C
 from yt_dlp import YoutubeDL
 
 # ==================== НАСТРОЙКИ ПРОЕКТА ====================
-BOT_TOKEN = "8888379212:AAEC6nI0zP6RU8Ux2J0pwEGAWdD-lhqoCHc" 
+BOT_TOKEN = "8888379212:AAFomTfrNqvhYLR-FGgBa2bPDyU-ByvK2So"
 
 
 
@@ -662,17 +662,11 @@ async def root():
 @app.on_event("startup")
 async def on_startup():
     init_db()
-    # Создаем фоновую задачу с правильным контекстом сессии бота!
-    async def run_bot():
-        try:
-            await bot.delete_webhook(drop_pending_updates=True)
-            await dp.start_polling(bot, skip_updates=True)
-        finally:
-            await bot.session.close()
-            
-    asyncio.create_task(run_bot())
+    # Удаляем любые старые зависшие вебхуки на серверах Telegram, чтобы освободить линию!
+    await bot.delete_webhook(drop_pending_updates=True)
+    # Запускаем вечный фоновый процесс опроса, который Render никогда не сможет выключить!
+    asyncio.create_task(dp.start_polling(bot, skip_updates=True))
     print("Ультимативная машина CodeOfFreedom успешно запущена на Render через вечный Polling!")
-
 
 if __name__ == "__main__":
     import uvicorn
