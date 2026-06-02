@@ -9,7 +9,8 @@ from aiogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, C
 from yt_dlp import YoutubeDL
 
 # ==================== НАСТРОЙКИ ПРОЕКТА ====================
-BOT_TOKEN = "8888379212:AAEC6nI0zP6RU8Ux2J0pwEGAWdD-lhqoCHc"
+BOT_TOKEN = "8888379212:AAEC6nI0zP6RU8Ux2J0pwEGAWdD-lhqoCHc" 
+
 
 
 ADMIN_ID = 906815308 # Твой ID
