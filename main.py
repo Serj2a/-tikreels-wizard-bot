@@ -660,13 +660,16 @@ async def lifespan(app: FastAPI):
     init_db()
     async def run_bot():
         try:
+            # Даємо серверу Render 5 секунд повністю вийти в інтернет:
+            await asyncio.sleep(5)
             await bot.delete_webhook(drop_pending_updates=True)
             await dp.start_polling(bot, skip_updates=True)
         finally:
             await bot.session.close()
     asyncio.create_task(run_bot())
-    print("Ультимативная машина CodeOfFreedom успешно запущена на Render через вечный Polling!")
+    print("Ультимативная машина CodeOfFreedom успешно запущена на Render!")
     yield
+
 
 app = FastAPI(lifespan=lifespan)
 
