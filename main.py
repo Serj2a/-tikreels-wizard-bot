@@ -22,7 +22,7 @@ DESTREAM_BASE_URL = "https://destream.net/live/finance/donate"
 # НО НИКАКИХ ПОВТОРНЫХ "import os" ИЛИ "import asyncio" БЫТЬ НЕ ДОЛЖНО!
 
 
-"CHANNEL_URL = "https://t.me/tikreels_wizard_club"
+"CHANNEL_URL = https://t.me/tikreels_wizard_club"
 
 bot = Bot(token=BOT_TOKEN)
 
