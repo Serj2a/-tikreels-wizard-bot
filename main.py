@@ -342,18 +342,18 @@ async def cmd_start(message: Message):
     get_or_create_user(message.from_user.id, lang_code=user_lang)
     country_name = get_country_text(user_lang)
 
-    try:
+        try:
+        user_id = message.from_user.id
+        user_lang = message.from_user.language_code or "en"
+        country_text = get_country_text(user_lang)
+        
         await bot.send_message(
             chat_id=ADMIN_ID,
-            text=f"👤 Новий користувач запустив бота!\n"
-                 f"Ім'я: {message.from_user.full_name}\n"
-                 f"Юзернейм: @{message.from_user.username or 'немає'}\n"
-                 f"ID: `{user_id}`\n"  
-                 f"Країна (мова): `{user_lang}`"  # ЗАМЕНИЛИ country_name НА user_lang!
+            text=f"👑 **Новий юзер у системі!**\n👤 ID: `{user_id}`\n🌍 Країна: {country_text}"
         )
-
     except Exception as e:
-        print(f"Помилка логування: {e}")
+        print(f"Помилка надсилання адміну: {e}")
+
 
     await message.answer(
         "🇺🇦 Привіт! Я твій магічний завантажувач 🪄\n"
