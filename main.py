@@ -358,9 +358,11 @@ async def cmd_start(message: Message):
 
 
     await message.answer(
-        "🇺🇦 Привіт! Я твій магічний завантажувач 🪄\n"
-        "Надішли мені посилання на відео з ⚡️ **TikTok**, 🔮 **Instagram** або 🔥 **YouTube Shorts**, і я скачаю його без водяних знаків!\n\n"
-        "🇬🇧 Hi! I am your magic downloader 🪄\n"
+        "🧙‍♂️ **Привіт! Я твій ультимативний магічний завантажувач!**\n\n"
+        "📥 Надішліть мені посилання на відео з **TikTok**, **Instagram Reels** або **YouTube Shorts**, і я завантажу його в FullHD якості без водяних знаків!\n\n"
+        "📢 Наш офіційний клуб: @tikreels_wizard_club"
+    )
+
         "Send me a ⚡️ **TikTok**, 🔮 **Instagram** or 🔥 **YouTube Shorts** link, and I will download it without watermarks!",
         reply_markup=get_start_keyboard()
     )
