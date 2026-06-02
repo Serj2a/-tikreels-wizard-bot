@@ -13,7 +13,7 @@ BOT_TOKEN = "8888379212:AAE2GnSTzbNlZ14B6d0Wd-ed5IzXwW0Xp28"
 ADMIN_ID = 906815308 # Твой реальный ID
 
 # Реальные платежные ссылки WayForPay и DeStream
-WAYFORPAY_PREMIUM_URL = "https://secure.wayforpay.com/sub/TikReels_Wizard_Premium"
+WAYFORPAY_PREMIUM_URL = "https://secure.wayforpay.com/donate/tikreels_premium"
 WAYFORPAY_COFFEE_URL = "https://secure.wayforpay.com/tips/coffee_wizard"
 
 DESTREAM_BASE_URL = "https://destream.net/live/finance/donate"
