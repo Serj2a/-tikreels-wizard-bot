@@ -366,13 +366,23 @@ async def cmd_start(message: Message):
 @dp.callback_query(F.data == "show_help")
 async def process_help(callback: CallbackQuery):
     await callback.message.edit_text(
-        "🔮 **МАГІЧНА ІНСТРУКЦІЯ / HELP:**\n\n"
-        "1. Скопіюйте посилання на відео з TikTok, Instagram або Shorts.\n"
-        "2. Просто надішліть це посилання сюди в чат.\n"
-        "3. Бот автоматично завантажить чисте FullHD відео без знаків!\n\n"
+        "🔮 **МАГІЧНА ІНСТРУКЦІЯ / MANUAL:**\n\n"
+        "🇺🇦 **ДЛЯ УКРАЇНИ:**\n"
+        "1. Надішліть посилання з TikTok, Instagram або Shorts 🎬\n"
+        "2. Отримайте соковите FullHD відео без водяних знаків!\n"
+        "🎁 **Ліміти:** Перші 3 відео — БЕЗКОШТОВНО! Далі — 1 безкоштовне відео на день.\n"
+        "💎 **Premium тарифи:**\n"
+        "• Безліміт на 1 день — всього 10 грн!\n"
+        "• Повний безліміт на 1 місяць — 80 грн! 👑\n\n"
+        "🇬🇧 **INTERNATIONAL:**\n"
+        "1. Send a link from TikTok, Instagram, or YouTube Shorts 🎬\n"
+        "2. Get crystal clear FullHD video with NO watermarks!\n"
+        "🎁 **Limits:** First 3 videos are FREE! Then — 1 free video every day.\n"
+        "💎 **Premium:** Full unlimited access for just $2/month! (Total steal!)\n\n"
         "📢 Наш офіційний клуб: @tikreels_wizard_club",
         reply_markup=get_start_keyboard()
     )
+
 
 # ==================== СИСТЕМА ПЕРЕХОПЛЕННЯ ТА СКАЧУВАННЯ ВІДЕО ====================
 @dp.message(F.text.contains("tiktok.com") | F.text.contains("instagram.com") | F.text.contains("youtube.com"))
