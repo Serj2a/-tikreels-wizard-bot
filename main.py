@@ -537,7 +537,6 @@ async def process_mp3(callback: CallbackQuery):
     await callback.message.delete()
     await download_process(callback.message, user_id, url, mode="audio")
 
-
 async def download_process(message_obj: Message, user_id: int, url: str, mode: str):
     status_msg = await message_obj.answer(
         "🇺🇦 Магія починається... Запускаю ракету за файлами 🚀🔥\n"
@@ -552,14 +551,30 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
         'no_warnings': True,
         'quiet': True,
         'geo_bypass': True,
-        # Залишаємо http_headers стерильно пустими, щоб yt-dlp сам автоматично 
-        # підбирав найсвіжіші та найточніші заголовки під кожне посилання!
         'http_headers': {},
-        # Включаємо FFmpeg для кришталевої склейки звуку з сочним параметром CRF 18
         'postprocessor_args': {
             'ffmpeg': ['-crf', '18', '-preset', 'fast']
         }
     }
+
+    if mode == "video":
+        ydl_opts['outtmpl'] = video_filename
+    elif mode == "audio":
+        ydl_opts['outtmpl'] = audio_filename
+        ydl_opts['format'] = 'bestaudio/best'
+    elif mode == "auto":
+        ydl_opts['outtmpl'] = f"media_{user_id}_%(pickle_index)s.%(ext)s"
+
+
+
+    if mode == "video":
+        ydl_opts['outtmpl'] = video_filename
+    elif mode == "audio":
+        ydl_opts['outtmpl'] = audio_filename
+        ydl_opts['format'] = 'bestaudio/best'
+    elif mode == "auto":
+        ydl_opts['outtmpl'] = f"media_{user_id}_%(pickle_index)s.%(ext)s"
+
 
 
     if mode == "video":
