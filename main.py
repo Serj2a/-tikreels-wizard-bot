@@ -13,8 +13,8 @@ BOT_TOKEN = "8888379212:AAE2GnSTzbNlZ14B6d0Wd-ed5IzXwW0Xp28"
 ADMIN_ID = 906815308 # Твой реальный ID
 
 # Реальные платежные ссылки WayForPay и DeStream
-WAYFORPAY_PREMIUM_URL = "https://secure.wayforpay.com/donate/tikreels_premium"
-WAYFORPAY_COFFEE_URL = "https://secure.wayforpay.com/tips/coffee_wizard"
+WAYFORPAY_PREMIUM_URL = "https://raw.githubusercontent.com/Serj2a/-tikreels-wizard-bot/refs/heads/main/img%20(1).png"
+WAYFORPAY_COFFEE_URL = "https://raw.githubusercontent.com/Serj2a/-tikreels-wizard-bot/735e2e0187739ff8452b702de9783e737dc26a91/tips_maket_big.png"
 
 DESTREAM_BASE_URL = "https://destream.net/live/finance/donate"
 
