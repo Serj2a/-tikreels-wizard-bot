@@ -381,7 +381,8 @@ async def handle_video_link(message: Message):
     user_id = message.from_user.id
     
     # Запускаем твой родной, встроенный асинхронный движок скачивания!
-    asyncio.create_task(download_and_send_video(message, url, user_id))
+    asyncio.create_task(download_process(message, user_id, url, mode="video"))
+
 
 
 
