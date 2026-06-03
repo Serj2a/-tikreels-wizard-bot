@@ -548,16 +548,19 @@ async def download_process(message_obj: Message, user_id: int, url: str, mode: s
     audio_filename = f"final_{user_id}.mp3"
 
     ydl_opts = {
-        'quiet': True,
         'format': 'bestvideo+bestaudio/best',
-
+        'no_warnings': True,
+        'quiet': True,
         'geo_bypass': True,
-        'http_headers': {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Language': 'uk-UA,uk;q=0.9,en-US;q=0.8,en;q=0.7',
+        # Залишаємо http_headers стерильно пустими, щоб yt-dlp сам автоматично 
+        # підбирав найсвіжіші та найточніші заголовки під кожне посилання!
+        'http_headers': {},
+        # Включаємо FFmpeg для кришталевої склейки звуку з сочним параметром CRF 18
+        'postprocessor_args': {
+            'ffmpeg': ['-crf', '18', '-preset', 'fast']
         }
     }
+
 
     if mode == "video":
         ydl_opts['outtmpl'] = video_filename
